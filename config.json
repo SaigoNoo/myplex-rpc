@@ -1,0 +1,10 @@
+{
+  "plex": {
+    "https": true,
+    "url": "myplex.domaine.be",
+    "port": 443,
+    "token": "yourPlexToken",
+    "user": "SaigoNoo"
+  },
+  "discord_id": 974790030335823952
+}

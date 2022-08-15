@@ -2,7 +2,7 @@ import json
 import time
 from plexapi.server import PlexServer
 from pypresence import Presence
-from os import system, getenv
+from os import getenv
 from sys import platform
 
 # Variables / Array

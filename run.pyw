@@ -2,17 +2,26 @@ import json
 import time
 from plexapi.server import PlexServer
 from pypresence import Presence
+from os import system, getenv
+from sys import platform
 
 # Variables / Array
 plexArray = []
-waitTime = 0.5
+waitTime = 1
 connect = False
 change = False
 last = ""
 start = True
+win = "USERPROFILE"
+linux="user"
 
 # Config Load
-with open("config.json") as config:
+if platform == "win32":
+    path = f"{getenv(win)}\.myplex-rpc\config.json"
+elif platform == "linux":
+    path = f"{getenv(linux)}/.myplex-rpc/config.json"
+
+with open(path) as config:
     data = json.load(config)
 
     https = data["plex"]["https"]
@@ -53,7 +62,6 @@ def update_metas(array, session_var, token_var):
 
 
 def update_presence(array, session_var):
-    print(session_var.duration, session_var.viewOffset)
     rpc.update(
         details=str(array[0]),
         state=str(array[1]),

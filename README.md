@@ -32,7 +32,9 @@ Vous pouvez y accéder par l'outil **Éxécuter...** (WINDOWS + R)
 
 ### Linux:
 Il se trouve dans ce répértoire
-``/home/$USER/.myplex-rpc/``
+```
+/home/$USER/.myplex-rpc/
+```
 
 ### MacOS:
 A REMPLIR...

@@ -23,6 +23,9 @@ L'installation est relativement simple !
 python3 install.py
 ```
 
+### ATTENTION:
+Windows uniquement: Vous pouvez double cliquer sur le install-win.cmd sans passer par le terminal !
+
 ## Accèder au fichier config après installation:
 ### Windows:
 Vous pouvez y accéder par l'outil **Éxécuter...** (WINDOWS + R)

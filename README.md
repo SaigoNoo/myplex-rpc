@@ -24,7 +24,7 @@ python3 install.py
 ```
 
 ### ATTENTION:
-Windows uniquement: Vous pouvez double cliquer sur le install-win.cmd sans passer par le terminal !
+Windows uniquement: Vous pouvez double cliquer sur le install-win.cmd sans ouvrir manuellement le terminal et sans specifier le chemin !
 
 ## Accèder au fichier config après installation:
 ### Windows:

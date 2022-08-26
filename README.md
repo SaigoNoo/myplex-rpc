@@ -17,31 +17,16 @@ La configuration de MyPlex-RPC se passe directement dans le fichier config.json:
 ```
 Vous pouvez obtenir votre Token en ouvrant le fichier XML dans les infos de votre média (vous devez être admin du serveur Plex), puis en copiant collant le token à la fin de l'URL !
 
-## Installation:
-L'installation est relativement simple !
-```
-python3 install.py
-```
+**A moins que vous souhaitiez un nom personalisé pour le nom de l'activité, ne changez pas le discord_id !**
 
-### ATTENTION:
-Windows uniquement: Vous pouvez double cliquer sur le install-win.cmd sans ouvrir manuellement le terminal et sans specifier le chemin !
+![image](https://user-images.githubusercontent.com/40198990/186991403-1741aa55-f8f5-4b97-91a1-e009b262214c.png)
 
-## Accèder au fichier config après installation:
-### Windows:
-Vous pouvez y accéder par l'outil **Éxécuter...** (WINDOWS + R)
-```
-%USERPROFILE%\.myplex-rpc
-```
 
-### Linux:
-Il se trouve dans ce répértoire
-```
-/home/$USER/.myplex-rpc/
-```
-
-### MacOS:
-A REMPLIR...
+## Automatiser le lancement du script !
+# Windows:
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=sNQGLZnBhys" target="_blank"><img src="http://img.youtube.com/vi/sNQGLZnBhys/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="220" height="180" border="0" /></a>
 
 ## Des questions ?
 Je tenterai de vous y répondre dans la mesure du possible !
-Je suis plus facilement accessible sur Discord: SaigoNoo#3044
+Je suis plus facilement accessible sur Discord: SaigoNoo#3044 mais vous pouvez également me faire part d'éventuelles erreurs ou sugestsions [ici](https://github.com/SaigoNoo/myplex-rpc/issues)

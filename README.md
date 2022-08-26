@@ -22,8 +22,11 @@ Vous pouvez obtenir votre Token en ouvrant le fichier XML dans les infos de votr
 ![image](https://user-images.githubusercontent.com/40198990/186991403-1741aa55-f8f5-4b97-91a1-e009b262214c.png)
 
 
-## Automatiser le lancement du script !
-# Windows:
+# Automatiser le lancement du script !
+
+**Le fichier XML à importer se trouve dans la zone de code !**
+
+## Windows:
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=sNQGLZnBhys" target="_blank"><img src="http://img.youtube.com/vi/sNQGLZnBhys/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="220" height="180" border="0" /></a>
 

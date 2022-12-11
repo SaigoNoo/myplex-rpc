@@ -1,0 +1,21 @@
+{
+    "plex": {
+        "https": true,
+        "domain": "set_dns",
+        "port": 443,
+        "token": "****",
+        "username": "SaigoNoo",
+        "password": "****",
+        "black_list": [
+            "Enregistrements"
+        ]
+    },
+    "window": {
+        "x": 300,
+        "y": 150
+    },
+    "paddings": {
+        "x": 20,
+        "y": 5
+    }
+}

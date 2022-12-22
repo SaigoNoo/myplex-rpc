@@ -1,22 +1,19 @@
 from classes.gui_classe import *
 from classes.rpc_class import RPC
-from sys import argv
+from argparse import ArgumentParser
 
-try:
-    argv[1]
-except:
-    print("Vous devez spécifier soit:\n --setup (Configurer le script)\n --run (executer le script)")
-    exit()
+arg_inst = ArgumentParser(description="Menu d'aide de MyPlexRPC")
+arg_inst.add_argument("-s", "--setup", action='store_true', help="Lancer le setup mode")
+arg_inst.add_argument("-r", "--run", action='store_true', help="Lancer le normal mode")
+args = arg_inst.parse_args()
 
-if __name__ == "__main__" and argv[1] == "--setup":
+if __name__ == "__main__" and args.setup:
     welcome = GUI()
-    welcome.resize
+    welcome.resize(240, 280)
     welcome.rename("Configuration Initiale")
-    welcome.username(0, 0)
-    welcome.password(1, 0)
-    welcome.connect_button("Se connecter")
+    welcome.login(0, 1)
     welcome.run
 
-if __name__ == "__main__" and argv[1] == "--run":
+if __name__ == "__main__" and args.run:
     discord_rpc = RPC()
     discord_rpc.do_loop

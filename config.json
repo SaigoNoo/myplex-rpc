@@ -10,12 +10,8 @@
             "Enregistrements"
         ]
     },
-    "window": {
-        "x": 300,
-        "y": 150
-    },
     "paddings": {
-        "x": 20,
-        "y": 5
+        "x": 25,
+        "y": 10
     }
 }

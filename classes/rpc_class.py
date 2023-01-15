@@ -1,20 +1,36 @@
-from pypresence import Presence
 from time import sleep, time
+
+from pypresence import Presence
+
 from .plex_classe import PlexRPC
+from .ssh_class import SSH
 from .usual_functions import val_key
 
 
 class RPC:
     def __init__(self):
+        self.icon = None
+        self.last_media = None
+        self.session = None
+        self.details = None
+        self.state = None
+        self.large_image = None
         self.rpc = Presence(974790030335823952)
         self.https = "https://" if val_key("plex")["https"] else "http://"
         self.dns = val_key("plex")["domain"]
         self.port = val_key("plex")["port"]
         self.token = val_key("plex")["token"]
+        self.pictures_server = val_key("plex")["temp_pictures_server"]
+        self.pictures_https = "https://" if val_key("plex")["temp_pictures_https"] else "http://"
         self.active = False
-        self.wait = 5
+        self.wait = 3
         self.waiting_message = False
         self.last_state = None
+        self.path = None
+        self.ssh_session = SSH()
+        self.ssh_session.add_key
+        self.ssh_session.connect_to_ssh
+        self.ssh_session.trash_folder
 
     @property
     def do_loop(self):
@@ -31,7 +47,7 @@ class RPC:
                 sleep(self.wait)
 
             while PlexRPC().is_watching:
-                if self.last_state == None:
+                if self.last_state is None:
                     self.last_state == PlexRPC().paused
                     self.last_media = PlexRPC().what_watching.ratingKey
 
@@ -40,10 +56,9 @@ class RPC:
                     self.active = True
                     self.waiting_message = False
 
-                self.icon = "https://i.imgur.com/oWPsNN4.png" if PlexRPC().paused else "https://i.imgur.com/Mm7Aq0N.png"
                 if PlexRPC().paused != self.last_state or PlexRPC().what_watching.ratingKey != self.last_media:
                     print(PlexRPC().output)
-                    self.define_RPC
+                    self.define_rpc
                     self.last_state = PlexRPC().paused
                     self.last_media = PlexRPC().what_watching.ratingKey
 
@@ -58,24 +73,33 @@ class RPC:
         self.rpc.close()
 
     @property
-    def define_RPC(self):
+    def define_rpc(self):
         self.session = PlexRPC().what_watching
+        self.path = self.session.show().locations[0]
+        self.ssh_session.connect_to_ssh
+
         if self.session.type == "track":
             self.details = self.session.title
             self.state = self.session.artist().title
-            self.large_image = self.session.thumb
 
         elif self.session.type == "episode":
             self.details = self.session.show().title
             self.state = f"{self.session.title} (S{self.session.seasonNumber}E{str(self.session.episodeNumber).zfill(2)})"
-            self.large_image = self.session.show().thumb
 
         elif self.session.type == "movie":
             self.details = self.session.title
             self.state = " ".join(str(f"{e}, ") for e in self.session.genres)
             self.state = self.state[:-2]
-            self.large_image = self.session.thumb
 
+        if 'icon.png' in self.ssh_session.content_ssh(f'{self.path}'):
+            self.ssh_session.load_picture(f'{self.path}', str(self.details).replace(' ', ''))
+            self.large_image = f"{self.pictures_https}{self.pictures_server}/{str(self.details).replace(' ', '')}.png"
+        elif 'icon.png' not in self.ssh_session.content_ssh(f'{self.path}') and self.session.type == "episode":
+            self.large_image = f'{self.https}{self.dns}:{self.port}{self.session.show().thumb}?X-Plex-Token={self.token}'
+        else:
+            self.large_image = f'{self.https}{self.dns}:{self.port}{self.session.thumb}?X-Plex-Token={self.token}'
+
+        self.ssh_session.close
         self.discord_rpc_pause if PlexRPC().paused else self.discord_rpc_play
 
     @property
@@ -83,9 +107,8 @@ class RPC:
         self.rpc.update(
             details=self.details,
             state=self.state,
-            large_image=f'{self.https}{self.dns}:{self.port}{self.large_image}?X-Plex-Token={self.token}',
+            large_image=self.large_image,
             large_text=self.details,
-            small_image=self.icon,
             end=int(time() + (PlexRPC().what_watching.duration / 1000) - (PlexRPC().what_watching.viewOffset / 1000))
         )
 
@@ -94,7 +117,6 @@ class RPC:
         self.rpc.update(
             details=self.details,
             state=self.state,
-            large_image=f'{self.https}{self.dns}:{self.port}{self.large_image}?X-Plex-Token={self.token}',
-            large_text=self.details,
-            small_image=self.icon,
+            large_image=self.large_image,
+            large_text=self.details
         )

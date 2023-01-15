@@ -1,17 +1,30 @@
 {
     "plex": {
         "https": true,
-        "domain": "set_dns",
+        "domain": "****",
         "port": 443,
         "token": "****",
-        "username": "SaigoNoo",
+        "username": "****",
         "password": "****",
         "black_list": [
             "Enregistrements"
-        ]
+        ],
+        "temp_pictures_server": "****",
+        "temp_pictures_https": true,
+        "temp_pictures_dir": "****"
+    },
+    "ssh": {
+        "domain": "****",
+        "port": 22,
+        "username": "****",
+        "password": "****"
+    },
+    "window": {
+        "x": 300,
+        "y": 150
     },
     "paddings": {
-        "x": 25,
-        "y": 10
+        "x": 20,
+        "y": 5
     }
 }

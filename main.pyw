@@ -11,13 +11,15 @@ choice = main_menu.parse_args()
 
 if __name__ == "__main__":
     if choice.setup:
-        welcome = GUI()
-        welcome.resize
-        welcome.rename("Configuration Initiale")
+        welcome = GUI("Logins PLEX")
         welcome.username(0, 0)
         welcome.password(1, 0)
-        welcome.connect_button("Se connecter")
+        welcome.get_token_button()
         welcome.run
+        welcome = GUI("Serveur PLEX")
+        welcome.set_domain(0,0)
+        welcome.run
+
     if choice.run:
         discord_rpc = RPC()
         discord_rpc.do_loop

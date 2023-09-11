@@ -18,7 +18,7 @@ class PlexRPC:
     def __init__(self):
         self.plex = val_key("plex")
         self.instance = PlexServer(
-            f'{"https://" if self.plex["https"] else "http://"}{self.plex["domain"]}:{self.plex["port"]}',
+            f'{self.plex["domain"]}:{self.plex["port"]}',
             self.plex["token"])
         self.username = val_key("plex")["username"]
 

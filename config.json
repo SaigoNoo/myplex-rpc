@@ -1,23 +1,13 @@
 {
     "plex": {
-        "https": true,
-        "domain": "****",
-        "port": 443,
-        "token": "****",
-        "username": "****",
-        "password": "****",
+        "domain": "https://myplex.doussis.be",
+        "port": "443",
+        "token": "token",
+        "username": "login",
+        "password": "password",
         "black_list": [
             "Enregistrements"
-        ],
-        "temp_pictures_server": "****",
-        "temp_pictures_https": true,
-        "temp_pictures_dir": "****"
-    },
-    "ssh": {
-        "domain": "****",
-        "port": 22,
-        "username": "****",
-        "password": "****"
+        ]
     },
     "window": {
         "x": 300,

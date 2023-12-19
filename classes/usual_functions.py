@@ -5,9 +5,9 @@ Here will be stored different tools who will help to get some common values or o
 """
 
 
-def val_key(key, file="config.json"):
+def val_key(file="config.json"):
     with open(file, "r") as config:
-        return json.load(config)[key]
+        return json.load(config)
 
 
 def save_value(key, value, file="config.json"):

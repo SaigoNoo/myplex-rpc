@@ -1,165 +1,75 @@
-from tkinter import *
-from .plex_classe import Plex
-from .usual_functions import val_key, save_value
+from tkinter import Tk, Label, Button, Listbox, LEFT, TOP, RIGHT, END
+from .plex_classe import PlexRPC
 
 
 class GUI:
-    def __init__(self, text):
-        self.size = val_key("window")
-        self.pad = val_key("paddings")
+    def __init__(self, text: str):
+        self.account = None
+        self.plex_access = None
+        self.size = {"x": 450, "y": 150}
+        self.pad = {"x": 20, "y": 5}
+        self.window = None
+        self.text = text
+        self.create_window()
+        self.selected_value = None
+
+    def create_window(self) -> None:
+        """
+        Crée une interface GUI avec le strict minimum !
+        __PRE__:
+        - self.text ne doit pas être <None>, sinon le titre de page sera erroné
+        - self.size doit être un <dict>, et contenir:
+            - une entée X de type <int>
+            - une entrée Y de type <int>
+        __POST__:
+        - l'attribut <obj>.newGeometry sera modifié
+        - l'attribut <obj>.string sera réecrit
+        """
         self.window = Tk()
         self.window.geometry(f"{self.size['x']}x{self.size['y']}")
-        self.window.title(f"{text}")
-        self.toggle = {
-            "password_view": True
-        }
+        self.window.title(f"{self.text}")
 
-    def get_token_button(self):
-        Button(self.window,
-               text=f"Connexion",
-               command=lambda: self.get_token,
-               padx=self.pad["x"],
-               pady=self.pad["y"]).place(relx=0.5, rely=0.5, anchor=CENTER)
-
-    def username(self, x, y):
-        Label(
-            self.window,
-            text="Nom d'utilisateur: "
-        ).grid(
-            row=x,
-            column=y
-        )
-
-        self.user = Entry(self.window)
-
-        self.user.insert(
-            0,
-            val_key("plex")["username"]
-        )
-
-        self.user.grid(
-            row=x,
-            column=y + 1
-        )
-
-    def password(self, x, y):
-        Label(self.window, text="Mot de passe: ").grid(row=x, column=y)
-        self.passwd = Entry(
-            self.window,
-            show="•"
-        )
-
-        self.passwd.insert(
-            0,
-            val_key("plex")["password"]
-        )
-
+    def create_sessions_list(self, sessions: list, event_method):
+        """
+        Permet à Tkinter d'ajouter une liste cliquable d'éléments.
+        __PRE__:
+        - sessions doit être une <list> de <objet>
+        - event_method doit être une <classmethod>
+        __POST__:
+        - self.window sera alteré par ses nouveaux attributs:
+            - taille de la fenetre
+            - liste
+            - boutons
+            - labels
+        :return:
+        """
+        Label(self.window, text="Liste de vos sessions actives").pack(side=TOP)
+        listbox = Listbox(self.window, width=40, height=10)
+        listbox.pack(side=RIGHT)
         Button(
             self.window,
-            text=f"👁",
-            command=lambda: self.password_view(
-                self.toggle['password_view']
-            )).grid(row=x, column=y + 2)
+            text="Actualiser la liste",
+            command=lambda: self.reset_listbox(listbox_object=listbox, sessions=PlexRPC().sessions())
+        ).pack(side=LEFT, padx=50, pady=0)
+        if not PlexRPC().is_session_empty():
+            for session in sessions:
+                listbox.insert(END, f"{session.show().title}: {session.title}")
+        listbox.bind("<<ListboxSelect>>", event_method)
 
-        self.passwd.grid(
-            row=x,
-            column=y + 1
-        )
+    @staticmethod
+    def reset_listbox(listbox_object: object, sessions: list):
+        """
+        Permet de réeinitialiser la liste des sessions sur Tkinter
+        __PRE__:
+        - une listebox <classmethod> venant de Tkinter existant
+        - sessions: <list> de <object>
+        __POST__:
+        - Réecriture des attributs de la listebox de tkinter
+        """
+        listbox_object.delete(0, END)
+        if not PlexRPC().is_session_empty():
+            for session in sessions:
+                listbox_object.insert(END, f"{session.show().title}: {session.title}")
 
-    def password_view(self, toggle):
-        if toggle:
-            self.passwd.configure(show='')
-        else:
-            self.passwd.configure(show="•")
-        self.toggle['password_view'] = not toggle
-
-    def set_domain(self, x, y):
-        Label(
-            self.window,
-            text="Nom de domaine: "
-        ).grid(
-            row=x,
-            column=y
-        )
-
-        Label(
-            self.window,
-            text="Port: "
-        ).grid(
-            row=x + 1,
-            column=y
-        )
-
-        self.domain = Entry(self.window)
-        self.port = Entry(self.window)
-
-        self.domain.insert(
-            0,
-            val_key("plex")["domain"]
-        )
-
-        self.port.insert(
-            0,
-            val_key("plex")["port"]
-        )
-
-        self.domain.grid(
-            row=x,
-            column=y + 1
-        )
-
-        self.port.grid(
-            row=x + 1,
-            column=y + 1
-        )
-
-        Button(self.window,
-               text=f"Valider",
-               command=lambda: self.save_plex,
-               padx=self.pad["x"],
-               pady=self.pad["y"]).place(relx=0.5, rely=0.5, anchor=CENTER)
-
-    @property
-    def get_token(self):
-        try:
-            self.plex_access = Plex(
-                self.user.get(),
-                self.passwd.get()
-            ).get_token
-
-            save_value(
-                "token",
-                self.plex_access.authenticationToken
-            )
-
-            save_value(
-                "username",
-                self.user.get()
-            )
-
-            save_value(
-                "password",
-                self.passwd.get()
-            )
-
-            self.window.destroy()
-        except:
-            raise Exception("Bad Login")
-
-    @property
-    def save_plex(self):
-        save_value(
-            "domain",
-            self.domain.get()
-        )
-
-        save_value(
-            "port",
-            self.port.get()
-        )
-
-        self.window.destroy()
-
-    @property
     def run(self):
         return self.window.mainloop()

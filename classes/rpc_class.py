@@ -1,67 +1,47 @@
 from pypresence import Presence
-from pypresence.exceptions import DiscordNotFound
-
-from .gui_classe import GUI
-from .plex_classe import PlexRPC
-from .usual_functions import val_key
+from time import time
 
 
 class RPC:
     def __init__(self):
         self.rpc = Presence(974790030335823952)
-        self.baseurl = val_key()["plex"]["base_url"]
-        self.token = val_key()["plex"]["token"]
-        self.details = None
-        self.state = None
         self.connected = False
 
-    def do_loop(self):
-        main = GUI(text="MyPlexRPC")
-        main.create_sessions_list(sessions=PlexRPC().sessions(), event_method=self.run_rpc)
-        main.run()
-        self.disconnect()
-
-    def run_rpc(self, event):
-        if not self.connected:
-            self.connect()
-            self.connected = True
-        index = event.widget.curselection()[0]
-        self.define_rpc(session=PlexRPC().data(index=index))
-
     def connect(self):
-        try:
+        if self.connected:
+            return "RPC_ALREADY_ENABLE"
+        else:
             self.rpc.connect()
-            return True
-        except DiscordNotFound:
-            return False
 
     def disconnect(self):
-        try:
-            self.rpc.close()
+        if self.connected:
             self.connected = False
-            return True
-        except ConnectionError:
-            return False
+            self.rpc.close()
+        else:
+            return "RPC_ALREADY_DISABLE"
 
-    def define_rpc(self, session: object):
-        self.path = session.show().locations[0]
-        self.large_image = f'{self.baseurl}{session.thumb}?X-Plex-Token={self.token}'
-
-        if session.type == "episode":
-            self.details = session.show().title
-            self.state = f"{session.title} (S{session.seasonNumber}E{str(session.episodeNumber).zfill(2)})"
-        elif session.type == "movie":
-            self.details = session.title
-            self.state = " ".join(str(f"{e}, ") for e in session.genres)
-            self.state = self.state[:-2]
-        self.discord_rpc()
-
-    def discord_rpc(self):
+    def discord_rpc(self, activity: dict or None = None):
+        state = None
+        title = None
+        pic = None
+        if activity is not None and activity["type"] == "movie":
+            state = activity["underTitle"]
+            title = f"{activity['mainTitle']} | {activity['underTitle']}"
+            pic = activity["cover"]
+        elif activity is not None:
+            state = f"{activity['underTitle']} | S{activity['seasonNumber']}E{activity['episodeNumber']}"
+            title = f"{activity['mainTitle']} | {activity['underTitle']}"
+            pic = activity["cover"]
+        elif activity is None:
+            title = "Page d'accueil"
+            state = "Recherche quelque chose à regarder..."
+            pic = "https://i.imgur.com/TLOfKRp.png"
         self.rpc.update(
-            details=self.details,
-            state=self.state,
-            large_image=self.large_image,
-            large_text=self.details,
-            small_image='https://cdn.icon-icons.com/icons2/2108/PNG/512/plex_icon_130854.png',
-            small_text='MyPlex'
+            details=title,
+            state=state,
+            large_image=pic,
+            large_text=activity["mainTitle"] if activity is not None else "Accueuil Plex",
+            small_image='https://play-lh.googleusercontent.com/slZYN_wnlAZ4BmyTZZakwfwAGm8JE5btL7u7AifhqCtUuxhtVVxQ1mcgpGOYC7MsAaU',
+            small_text='MyPlex',
+            end=None if activity is None else max(1, time() + (activity['time'] - activity['progress']))
         )

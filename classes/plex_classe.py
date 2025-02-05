@@ -1,84 +1,77 @@
-from plexapi.server import PlexServer
-from plexapi.utils import plexOAuth
-from plexapi.exceptions import Unauthorized
+from plexapi.myplex import MyPlexAccount
 
-from .usual_functions import val_key, save_value
+from classes.text import Text
+from classes.usual_functions import File
+
+text = Text(module="Plex Module")
 
 
 class Plex:
-    @staticmethod
-    def check_connect():
-        """
-        Si le token de connexion n'est plus valide, un nouveau sera crée par authentification oAuth2.
-        __PRE__:
-        - le fichier de config.json doit exister
-        - le fichier de config.json doit avoir un premier niveau de clé "plex"
-        - le fichier de config.json doit avoir dans la clé "plex":
-            - "token": Qui doit être un <str> soit hardcodé (pas nécessaire), soit obtenu via la méthode (par défaut)
-            - "base_url": Qui doit être un <str> hardcodé
-            - "X-Plex-Client-Identifier": Qui doit être de type <str> et identifiera quel est le nom de connexion du script dans
-            la liste des appareils connectés de Plex
-        __POST__:
-        - sera réecrit SI on est dans le [raise: Unauthorized]:
-            - "token": Qui doit être un <str> obtenu via la méthode
+    def __init__(self, token: str):
+        self.instance = None
+        self.server_instance = None
+        self.server_url = None
+        self._username = None
+        self.__password = None
+        self.name = None
+        self.token = token
+        self.header_name = None
+        self.current_session_id = None
+        self.config = File(file="config.json")
+        self.last_activity = None
+        self.blacklist = []
 
-        """
-        headers = {
-            'X-Plex-Client-Identifier': val_key()["plex"]["X-Plex-Client-Identifier"],
-        }
-        try:
-            PlexServer(baseurl=val_key()['plex']["base_url"], token=val_key()["plex"]["token"])
+    def close(self):
+        self.instance.signout()
 
-        except Unauthorized:
-            instance = plexOAuth(headers=headers, timeout=120)
-            save_value(key="token", value=instance.authenticationToken)
+    def update_values(self):
+        self._username = self.config.get_value(key="username")
+        self.__password = self.config.get_value(key="password")
+        self.name = self.config.get_value(key="server_name")
+        self.header_name = self.config.get_value(key="X-Plex-Client-Identifier")
+        self.instance = self.create_instance()
+        self.server_instance = self.instance.resource(name=self.name).connect()
+        self.server_url = self.config.get_value(key="server_url")
+        self.blacklist = self.config.get_value(key="black_list")
 
+    def create_instance(self):
+        return MyPlexAccount(username=self._username, password=self.__password, token=self.token)
 
-class PlexRPC:
-    def __init__(self):
-        self.instance = PlexServer(baseurl=val_key()['plex']["base_url"], token=val_key()["plex"]["token"])
+    def activity(self):
+        for activity in self.server_instance.sessions():
+            self.last_activity = activity
+            if activity.user.username == self._username and activity.title not in self.blacklist:
+                if activity.type == "movie":
+                    return {
+                        "mainTitle": activity.title,
+                        "underTitle": " ".join(str(f"{e}, ") for e in activity.genres)[:-2],
+                        "cover": self.replace_cover_url(target=activity.thumbUrl),
+                        "progress": int(activity.viewOffset / 1000),
+                        "time": int(activity.duration / 1000),
+                        "type": "movie",
+                        "status": activity.player.state
+                    }
+                elif activity.type == "episode":
+                    return {
+                        "mainTitle": activity.show().title,
+                        "underTitle": activity.title,
+                        "seasonNumber": str(activity.seasonNumber).zfill(2),
+                        "episodeNumber": str(activity.episodeNumber).zfill(2),
+                        "episodeCover": self.replace_cover_url(target=activity.thumbUrl),
+                        "cover": self.replace_cover_url(target=activity.show().thumbUrl),
+                        "progress": int(activity.viewOffset / 1000),
+                        "time": int(activity.duration / 1000),
+                        "type": "show",
+                        "status": activity.player.state
+                    }
 
-    def sessions(self) -> list:
-        """
-        Retourne une liste d'objets des sessions actives
-        __PRE__:
-        - self.instance doit être instancié et contenir un objet
-        __POST__:
-        - Renvoie une liste d'objets non stockés
-        """
-        return self.instance.sessions()
-
-    def data(self, index: int) -> dict:
-        """
-        Retourne un objets d'un des sessions actives a partir de son index
-        __PRE__:
-        - self.instance doit être instancié et contenir un objet
-        - index doit être un <int>
-        __POST__:
-        - Renvoie un objet non stocké
-        """
-        return self.instance.sessions()[index]
-
-    @staticmethod
-    def state(session: object) -> str:
-        """
-        Retourne une string qui indique l'état de lecture d'une session selon son index
-        __PRE__:
-        - self.instance doit être instancié et contenir un objet
-        - index doit être un <int>
-        __POST__:
-        - Renvoie un <str> non stocké
-        """
-        return session.players[0].state
+    def current_session(self):
+        for activity in self.server_instance.sessions():
+            if activity.user.username == self._username:
+                return activity
 
     def is_session_empty(self) -> bool:
-        """
-        Retourne un <bool> qui indique si l'utilisateur lit actuellement sur Plex en vérifiant la longueur de la
-        liste des sessions.
-        __PRE__:
-        - self.instance doit être instancié et contenir un objet
-        - self.sessions doit être une liste d'objets
-        __POST__:
-        - Renvoie <bool> non stocké
-        """
-        return len(self.instance.sessions()) == 0
+        return self.activity() is None or len(self.activity()) == 0
+
+    def replace_cover_url(self, target: str):
+        return f'{self.server_url}{target.split(":32400")[1]}'

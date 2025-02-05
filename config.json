@@ -1,20 +1,10 @@
 {
-    "plex": {
-        "domain": "https://myplex.doussis.be",
-        "port": "443",
-        "token": "token",
-        "username": "login",
-        "password": "password",
-        "black_list": [
-            "Enregistrements"
-        ]
-    },
-    "window": {
-        "x": 300,
-        "y": 150
-    },
-    "paddings": {
-        "x": 20,
-        "y": 5
-    }
+  "server_name": "MyPlex",
+  "username": "set_username",
+  "password": "password",
+  "X-Plex-Client-Identifier": "MyPlexRPC",
+  "black_list": [
+    ""
+  ],
+  "server_url": "https://plex_url.com or IP:port"
 }
